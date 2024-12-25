@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static java.util.Comparator.comparing;
+
 @Slf4j
 @Getter
 @Service
@@ -27,7 +29,8 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
 
     @PostConstruct
     public void init() {
-        FeatureFlagService.featureFlags = repository.findAll();
+        featureFlags = repository.findAll();
+        featureFlags.sort(comparing(FeatureFlagEntity::getCreated).reversed());
     }
 
     public List<FeatureFlagEntity> getFeatureFlags() {
@@ -38,6 +41,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     public FeatureFlagEntity create(FeatureFlagEntity entity) {
         var savedEntity = CrudService.super.create(entity);
         featureFlags.add(entity);
+        featureFlags.sort(comparing(FeatureFlagEntity::getCreated).reversed());
         return savedEntity;
     }
 
@@ -49,6 +53,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
                 featureFlags.set(featureFlags.indexOf(flag), savedEntity);
             }
         }
+        featureFlags.sort(comparing(FeatureFlagEntity::getCreated).reversed());
         return savedEntity;
     }
 
