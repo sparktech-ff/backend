@@ -1,11 +1,11 @@
-package com.sparktechcode.ff.core.accessibility.featureflag.controllers;
+package com.sparktechcode.ff.core.featureflag.controllers;
 
-import com.sparktechcode.ff.core.accessibility.featureflag.FeatureFlag;
-import com.sparktechcode.ff.core.accessibility.featureflag.entities.FeatureFlagEntity;
-import com.sparktechcode.ff.core.accessibility.featureflag.mappers.FeatureFlagMapper;
-import com.sparktechcode.ff.core.accessibility.featureflag.payloads.FeatureFlagRequestDto;
-import com.sparktechcode.ff.core.accessibility.featureflag.payloads.FeatureFlagResponseDto;
-import com.sparktechcode.ff.core.accessibility.featureflag.services.FeatureFlagService;
+import com.sparktechcode.ff.core.featureflag.FeatureFlag;
+import com.sparktechcode.ff.core.featureflag.entities.FeatureFlagEntity;
+import com.sparktechcode.ff.core.featureflag.mappers.FeatureFlagMapper;
+import com.sparktechcode.ff.core.featureflag.payloads.FeatureFlagRequestDto;
+import com.sparktechcode.ff.core.featureflag.payloads.FeatureFlagResponseDto;
+import com.sparktechcode.ff.core.featureflag.services.FeatureFlagService;
 import com.sparktechcode.springcrud.controllers.multiple.SCRUDController;
 import com.sparktechcode.springcrud.payloads.PathParams;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -30,13 +31,13 @@ public class AdminFeatureFlagController implements
     private final FeatureFlagMapper mapper;
 
     @GetMapping("all")
-    public List<FeatureFlagResponseDto> getAll() {
-        return mapper.toDtoList(service.getFeatureFlags(), PathParams.getInstance());
+    public List<FeatureFlagResponseDto> getFeatureFlags(@RequestParam(required = false) String userId) {
+        return mapper.toDtoList(service.getFeatureFlags(userId), PathParams.getInstance());
     }
 
     @GetMapping("reload")
-    public List<FeatureFlagResponseDto> reloadAll() {
+    public List<FeatureFlagResponseDto> reloadAndGetFeatureFlags(@RequestParam(required = false) String userId) {
         service.init();
-        return mapper.toDtoList(service.getFeatureFlags(), PathParams.getInstance());
+        return mapper.toDtoList(service.getFeatureFlags(userId), PathParams.getInstance());
     }
 }

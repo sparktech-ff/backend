@@ -1,6 +1,6 @@
-package com.sparktechcode.ff.core.accessibility.featureflag.entities;
+package com.sparktechcode.ff.core.featureflag.entities;
 
-import com.sparktechcode.ff.core.accessibility.featureflag.FeatureFlag;
+import com.sparktechcode.ff.core.featureflag.FeatureFlag;
 import com.sparktechcode.springcrud.entities.AutoIdBaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

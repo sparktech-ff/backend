@@ -1,6 +1,6 @@
-package com.sparktechcode.ff.core.accessibility.featureflag.payloads;
+package com.sparktechcode.ff.core.featureflag.payloads;
 
-import com.sparktechcode.ff.core.accessibility.featureflag.FeatureFlag;
+import com.sparktechcode.ff.core.featureflag.FeatureFlag;
 import com.sparktechcode.ff.core.common.payloads.AuditDto;
 import com.sparktechcode.springjpasearch.entities.IdHolder;
 import lombok.Getter;

@@ -1,5 +1,6 @@
 package com.sparktechcode.ff.core.common.config;
 
+import com.sparktechcode.ff.core.auth.filters.JwtAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,6 +26,7 @@ public class WebSecurityConfig {
 
     private final CorsConfig corsConfig;
     private final AuthConfig authConfig;
+    private final JwtAuthorizationFilter filter;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -44,21 +47,11 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/public/**", "/actuator/**").permitAll()
+                        .requestMatchers("/common/**").authenticated()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .anyRequest().denyAll()
                 );
-        http.oauth2ResourceServer(server -> server.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
-    }
-
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        var converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(jwt ->
-            (jwt.getSubject().equals(authConfig.getAdminUserId()) ? List.of("ADMIN") : new ArrayList<String>())
-                .stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList())
-        );
-        return converter;
     }
 }

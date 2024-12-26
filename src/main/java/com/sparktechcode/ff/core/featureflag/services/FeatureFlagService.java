@@ -1,8 +1,8 @@
-package com.sparktechcode.ff.core.accessibility.featureflag.services;
+package com.sparktechcode.ff.core.featureflag.services;
 
-import com.sparktechcode.ff.core.accessibility.featureflag.FeatureFlag;
-import com.sparktechcode.ff.core.accessibility.featureflag.entities.FeatureFlagEntity;
-import com.sparktechcode.ff.core.accessibility.featureflag.repositories.FeatureFlagRepository;
+import com.sparktechcode.ff.core.featureflag.FeatureFlag;
+import com.sparktechcode.ff.core.featureflag.entities.FeatureFlagEntity;
+import com.sparktechcode.ff.core.featureflag.repositories.FeatureFlagRepository;
 import com.sparktechcode.springcrud.services.CrudService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 
@@ -33,7 +34,12 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
         featureFlags.sort(comparing(FeatureFlagEntity::getCreated).reversed());
     }
 
-    public List<FeatureFlagEntity> getFeatureFlags() {
+    public List<FeatureFlagEntity> getFeatureFlags(String userId) {
+        if (userId != null) {
+            return featureFlags.stream().filter(item ->
+                    item.getUsers() == null || item.getUsers().isEmpty() || item.getUsers().contains(userId)
+            ).collect(Collectors.toList());
+        }
         return featureFlags;
     }
 

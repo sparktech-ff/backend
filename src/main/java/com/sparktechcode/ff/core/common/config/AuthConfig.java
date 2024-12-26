@@ -8,5 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties("ff.auth")
 public class AuthConfig {
-    private String adminUserId;
+    private String issuer;
+    private String secret;
+    private String email;
+    private String password;
 }

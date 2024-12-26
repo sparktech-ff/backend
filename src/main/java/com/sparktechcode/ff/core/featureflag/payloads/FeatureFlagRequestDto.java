@@ -1,6 +1,6 @@
-package com.sparktechcode.ff.core.accessibility.featureflag.payloads;
+package com.sparktechcode.ff.core.featureflag.payloads;
 
-import com.sparktechcode.ff.core.accessibility.featureflag.FeatureFlag;
+import com.sparktechcode.ff.core.featureflag.FeatureFlag;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
