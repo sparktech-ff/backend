@@ -37,6 +37,12 @@ public class FeatureFlagEntity extends AutoIdBaseEntity<String> implements Featu
     @Column(name = "mode")
     private String  mode;
 
+    @Column(name = "enabled")
+    private Boolean enabled;
+
+    @Column(name = "data", length = 4000)
+    private String data;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "users", columnDefinition = "jsonb")
     private List<String> users;

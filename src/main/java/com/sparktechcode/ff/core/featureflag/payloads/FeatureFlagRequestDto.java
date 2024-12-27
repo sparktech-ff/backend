@@ -14,5 +14,7 @@ public class FeatureFlagRequestDto implements FeatureFlag {
     private String name;
     private String  description;
     private String mode;
+    private Boolean enabled;
+    private String data;
     private List<String> users;
 }

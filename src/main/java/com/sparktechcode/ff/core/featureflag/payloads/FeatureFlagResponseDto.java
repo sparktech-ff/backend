@@ -16,5 +16,7 @@ public class FeatureFlagResponseDto extends AuditDto implements IdHolder<String>
     private String name;
     private String  description;
     private String mode;
+    private Boolean enabled;
+    private String data;
     private List<String> users;
 }
