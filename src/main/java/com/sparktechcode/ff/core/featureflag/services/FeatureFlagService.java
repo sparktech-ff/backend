@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,13 +46,10 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     }
 
     public FeatureFlagEntity getFeatureFlagByName(String name, String userId) {
-        return findFeatureFlagByName(name, userId).orElseThrow(NotFoundException::new);
-    }
-
-    public boolean isFeatureFlagEnabled(String name, String userId) {
-        return findFeatureFlagByName(name, userId)
-                .map(FeatureFlagEntity::getEnabled)
-                .orElse(false);
+        return featureFlags.stream()
+                .filter(f -> f.getName().equals(name) && isFeatureFlagEnabledForUser(f, userId))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
     }
 
     @Override
@@ -81,12 +77,6 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
         var removedEntity = CrudService.super.remove(entity);
         featureFlags.removeIf(element -> element.getId().equals(entity.getId()));
         return removedEntity;
-    }
-
-    private Optional<FeatureFlagEntity> findFeatureFlagByName(String name, String userId) {
-        return featureFlags.stream()
-                .filter(f -> f.getName().equals(name) && isFeatureFlagEnabledForUser(f, userId))
-                .findFirst();
     }
 
     private boolean isFeatureFlagEnabledForUser(FeatureFlagEntity featureFlag, String userId) {

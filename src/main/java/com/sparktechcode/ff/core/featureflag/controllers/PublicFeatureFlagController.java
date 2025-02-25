@@ -38,9 +38,4 @@ public class PublicFeatureFlagController implements
     public FeatureFlagResponseDto getFeatureFlagByName(@RequestParam String name, @RequestParam(required = false) String userId) {
         return mapper.toDto(service.getFeatureFlagByName(name, userId));
     }
-
-    @GetMapping("is-enabled")
-    public boolean isFeatureFlagEnabled(@RequestParam String name, @RequestParam(required = false) String userId) {
-        return service.isFeatureFlagEnabled(name, userId);
-    }
 }
