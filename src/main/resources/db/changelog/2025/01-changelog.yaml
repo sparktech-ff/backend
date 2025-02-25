@@ -1,0 +1,11 @@
+databaseChangeLog:
+- changeSet:
+    id: 1740481711952-1
+    author: hussain.abdel-ilah (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: regex_pattern
+            type: VARCHAR(255)
+        tableName: feature_flags

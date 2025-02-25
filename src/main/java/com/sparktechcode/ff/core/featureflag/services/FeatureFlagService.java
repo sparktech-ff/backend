@@ -3,6 +3,7 @@ package com.sparktechcode.ff.core.featureflag.services;
 import com.sparktechcode.ff.core.featureflag.FeatureFlag;
 import com.sparktechcode.ff.core.featureflag.entities.FeatureFlagEntity;
 import com.sparktechcode.ff.core.featureflag.repositories.FeatureFlagRepository;
+import com.sparktechcode.springcrud.exceptions.NotFoundException;
 import com.sparktechcode.springcrud.services.CrudService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -12,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
@@ -36,11 +39,21 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
 
     public List<FeatureFlagEntity> getFeatureFlags(String userId) {
         if (userId != null) {
-            return featureFlags.stream().filter(item ->
-                    item.getUsers() == null || item.getUsers().isEmpty() || item.getUsers().contains(userId)
-            ).collect(Collectors.toList());
+            return featureFlags.stream()
+                    .filter(item -> isFeatureFlagEnabledForUser(item, userId))
+                    .collect(Collectors.toList());
         }
         return featureFlags;
+    }
+
+    public FeatureFlagEntity getFeatureFlagByName(String name, String userId) {
+        return findFeatureFlagByName(name, userId).orElseThrow(NotFoundException::new);
+    }
+
+    public boolean isFeatureFlagEnabled(String name, String userId) {
+        return findFeatureFlagByName(name, userId)
+                .map(FeatureFlagEntity::getEnabled)
+                .orElse(false);
     }
 
     @Override
@@ -69,4 +82,24 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
         featureFlags.removeIf(element -> element.getId().equals(entity.getId()));
         return removedEntity;
     }
+
+    private Optional<FeatureFlagEntity> findFeatureFlagByName(String name, String userId) {
+        return featureFlags.stream()
+                .filter(f -> f.getName().equals(name) && isFeatureFlagEnabledForUser(f, userId))
+                .findFirst();
+    }
+
+    private boolean isFeatureFlagEnabledForUser(FeatureFlagEntity featureFlag, String userId) {
+        if (userId != null) {
+            var isUserIncluded = featureFlag.getUsers() == null
+                    || featureFlag.getUsers().isEmpty()
+                    || featureFlag.getUsers().contains(userId);
+            var doesUserMatchPattern = featureFlag.getRegexPattern() == null
+                    || featureFlag.getRegexPattern().isEmpty()
+                    || Pattern.matches(featureFlag.getRegexPattern(), userId);
+            return isUserIncluded || doesUserMatchPattern;
+        }
+        return true;
+    }
+
 }

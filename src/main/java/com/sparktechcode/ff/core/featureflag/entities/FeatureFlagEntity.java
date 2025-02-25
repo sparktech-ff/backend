@@ -46,4 +46,7 @@ public class FeatureFlagEntity extends AutoIdBaseEntity<String> implements Featu
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "users", columnDefinition = "jsonb")
     private List<String> users;
+
+    @Column(name = "regex_pattern")
+    private String regexPattern;
 }
