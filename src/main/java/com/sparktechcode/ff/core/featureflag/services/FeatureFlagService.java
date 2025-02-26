@@ -39,7 +39,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     public List<FeatureFlagEntity> getFeatureFlags(String userId) {
         if (userId != null) {
             return featureFlags.stream()
-                    .filter(item -> isFeatureFlagEnabledForUser(item, userId))
+                    .filter(item -> isUserEligibleForFeatureFlag(item, userId))
                     .collect(Collectors.toList());
         }
         return featureFlags;
@@ -47,7 +47,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
 
     public FeatureFlagEntity getFeatureFlagByName(String name, String userId) {
         return featureFlags.stream()
-                .filter(f -> f.getName().equals(name) && isFeatureFlagEnabledForUser(f, userId))
+                .filter(f -> f.getName().equals(name) && isUserEligibleForFeatureFlag(f, userId))
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
     }
@@ -79,8 +79,8 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
         return removedEntity;
     }
 
-    private boolean isFeatureFlagEnabledForUser(FeatureFlagEntity featureFlag, String userId) {
-        if (userId != null) {
+    private boolean isUserEligibleForFeatureFlag(FeatureFlagEntity featureFlag, String userId) {
+        if (userId != null && featureFlag.getEnabled()) {
             var isUserIncluded = featureFlag.getUsers() == null
                     || featureFlag.getUsers().isEmpty()
                     || featureFlag.getUsers().contains(userId);
