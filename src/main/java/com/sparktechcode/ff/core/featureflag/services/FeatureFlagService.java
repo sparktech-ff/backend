@@ -80,16 +80,10 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     }
 
     private boolean isUserEligibleForFeatureFlag(FeatureFlagEntity featureFlag, String userId) {
-        if (userId != null && featureFlag.getEnabled()) {
-            var isUserIncluded = featureFlag.getUsers() == null
-                    || featureFlag.getUsers().isEmpty()
-                    || featureFlag.getUsers().contains(userId);
-            var doesUserMatchPattern = featureFlag.getRegexPattern() == null
-                    || featureFlag.getRegexPattern().isEmpty()
-                    || Pattern.matches(featureFlag.getRegexPattern(), userId);
-            return isUserIncluded || doesUserMatchPattern;
+        var users = featureFlag.getUsers();
+        if (users != null && !users.isEmpty() && userId != null && featureFlag.getEnabled()) {
+            return users.stream().anyMatch(user -> userId.equals(user) || userId.matches(user));
         }
         return true;
     }
-
 }
