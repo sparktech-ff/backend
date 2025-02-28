@@ -79,10 +79,9 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
         return removedEntity;
     }
 
-    private boolean isUserEligibleForFeatureFlag(FeatureFlagEntity featureFlag, String userId) {
-        var users = featureFlag.getUsers();
-        if (users != null && !users.isEmpty() && userId != null && featureFlag.getEnabled()) {
-            return users.stream().anyMatch(user -> userId.equals(user) || userId.matches(user));
+    private boolean isUserEligibleForFeatureFlag(FeatureFlagEntity flag, String userId) {
+        if (flag.getUsers() != null && !flag.getUsers().isEmpty() && userId != null && flag.getEnabled()) {
+            return flag.getUsers().stream().anyMatch(user -> userId.equals(user) || userId.matches(user));
         }
         return true;
     }
