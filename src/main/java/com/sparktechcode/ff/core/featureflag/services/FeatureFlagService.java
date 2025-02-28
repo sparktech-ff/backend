@@ -3,6 +3,7 @@ package com.sparktechcode.ff.core.featureflag.services;
 import com.sparktechcode.ff.core.featureflag.FeatureFlag;
 import com.sparktechcode.ff.core.featureflag.entities.FeatureFlagEntity;
 import com.sparktechcode.ff.core.featureflag.repositories.FeatureFlagRepository;
+import com.sparktechcode.springcrud.exceptions.NotFoundException;
 import com.sparktechcode.springcrud.services.CrudService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
@@ -36,11 +38,18 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
 
     public List<FeatureFlagEntity> getFeatureFlags(String userId) {
         if (userId != null) {
-            return featureFlags.stream().filter(item ->
-                    item.getUsers() == null || item.getUsers().isEmpty() || item.getUsers().contains(userId)
-            ).collect(Collectors.toList());
+            return featureFlags.stream()
+                    .filter(item -> isUserEligibleForFeatureFlag(item, userId))
+                    .collect(Collectors.toList());
         }
         return featureFlags;
+    }
+
+    public FeatureFlagEntity getFeatureFlagByName(String name, String userId) {
+        return featureFlags.stream()
+                .filter(f -> f.getName().equals(name) && isUserEligibleForFeatureFlag(f, userId))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
     }
 
     @Override
@@ -68,5 +77,12 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
         var removedEntity = CrudService.super.remove(entity);
         featureFlags.removeIf(element -> element.getId().equals(entity.getId()));
         return removedEntity;
+    }
+
+    private boolean isUserEligibleForFeatureFlag(FeatureFlagEntity flag, String userId) {
+        if (flag.getUsers() != null && !flag.getUsers().isEmpty() && userId != null && flag.getEnabled()) {
+            return flag.getUsers().stream().anyMatch(user -> userId.equals(user) || userId.matches(user));
+        }
+        return true;
     }
 }
