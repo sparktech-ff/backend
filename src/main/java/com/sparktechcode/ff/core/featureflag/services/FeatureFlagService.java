@@ -30,7 +30,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     private static List<FeatureFlagEntity> featureFlags = new CopyOnWriteArrayList<>();
 
     @PostConstruct
-    public void init() {
+    public void refresh() {
         featureFlags = repository.findAll();
         featureFlags.sort(comparing(FeatureFlagEntity::getCreated).reversed());
     }
@@ -54,6 +54,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     @Override
     public FeatureFlagEntity create(FeatureFlagEntity entity) {
         var savedEntity = CrudService.super.create(entity);
+        repository.refreshBroadcast();
         featureFlags.add(entity);
         featureFlags.sort(comparing(FeatureFlagEntity::getCreated).reversed());
         return savedEntity;
@@ -62,6 +63,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     @Override
     public FeatureFlagEntity update(FeatureFlagEntity entity) {
         var savedEntity = CrudService.super.update(entity);
+        repository.refreshBroadcast();
         for (var flag : featureFlags) {
             if (flag.getId().equals(entity.getId())) {
                 featureFlags.set(featureFlags.indexOf(flag), savedEntity);
@@ -74,6 +76,7 @@ public class FeatureFlagService implements CrudService<String, FeatureFlagEntity
     @Override
     public FeatureFlagEntity remove(FeatureFlagEntity entity) {
         var removedEntity = CrudService.super.remove(entity);
+        repository.refreshBroadcast();
         featureFlags.removeIf(element -> element.getId().equals(entity.getId()));
         return removedEntity;
     }

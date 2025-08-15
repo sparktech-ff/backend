@@ -37,7 +37,7 @@ public class AdminFeatureFlagController implements
 
     @GetMapping("reload")
     public List<FeatureFlagResponseDto> reloadAndGetFeatureFlags(@RequestParam(required = false) String userId) {
-        service.init();
+        service.refresh();
         return mapper.toDtoList(service.getFeatureFlags(userId), PathParams.getInstance());
     }
 }
